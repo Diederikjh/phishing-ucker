@@ -1,0 +1,86 @@
+#!/usr/bin/python
+import httplib, urllib
+import time
+from random import choice 
+
+from scrapy.spider import BaseSpider
+from scrapy.selector import HtmlXPathSelector
+from scrapy.item import Item, Field
+
+#New: uses scrappy, to get all input methods from HTML. Then tries to automatically figure out what inputs it should post to website
+#http://scrapy.org/
+
+
+# Script to post random crap to phishing sites.  After you have "reported web Forgery"  (http://www.google.com/safebrowsing/report_phish/?tpl=mozilla&hl=en-ZA&url=http%3A%2F%2Fwww.somerandomwebsite2.com%2F  )
+# inspect the website for the input form, populate the below fields with the required info, and
+# then post their database with random non working baninkg pins and account numbers.   Take care to match the the random fields, and honeypots they might have setup.
+
+# Let them sift through that chaos!
+
+#  Please note I don't take any responsibility for the use of this script.  You use it, you deal with it.
+
+# TODO:
+# Handle GET action
+# Move to urlib2 like everyone keeps saying, I guess
+# Add rudamentary cookie support
+
+
+# NOTE This is the very old and crappy way of 
+SERVER_NAME = 'www.somerandomwebsite2.com'
+URL = '/path/to/nasty/phishingsite'
+LOOP_COUNT = 1
+LOOP_DELAY = 300
+
+HTTP_ACTION = 'POST'
+VERBOSE = 1
+
+
+def getNumbersStringArray(f, t):
+	numbersAsString = []
+	for i in range(f,t) :
+		numbersAsString.append(str(i))
+	return numbersAsString
+
+def getNumbers():
+	return getNumbersStringArray(0,10)
+
+def getRandomNumberString(pinLength):
+	numbersAsString = getNumbers()
+	generatedNumber = ''
+	
+	for k in range(pinLength):
+		generatedNumber = generatedNumber + choice(numbersAsString)
+	return generatedNumber
+
+def getRandomNumberStringNoLeadingZero(pinLength):
+	numberString = getRandomNumberString(pinLength-1)
+	nonZeroArray = getNumbersStringArray(1,10)
+	return choice(nonZeroArray) + numberString
+
+def main():
+	headers = {"Content-type": "application/x-www-form-urlencoded",
+ 	"Accept": "text/plain"}
+
+	conn = httplib.HTTPConnection(SERVER_NAME)
+
+	params = urllib.urlencode(
+		{'email': 'test312@mailinator.com',
+		 'AccountNr': getRandomNumberString(8), 
+		 'Pin': getRandomNumberString(5)})
+
+	i= 0
+	while (i < LOOP_COUNT):
+		conn.request(HTTP_ACTION, URL, params, headers)
+		response = conn.getresponse()
+		print response.status, response.reason
+		data = response.read()
+		if VERBOSE == 1:
+			print data
+		i = i + 1
+		time.sleep(LOOP_DELAY/1000.0)
+
+	conn.close()
+	print 'Bye'
+
+main()
+

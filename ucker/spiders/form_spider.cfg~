@@ -1,0 +1,12 @@
+class FormSpider(BaseSpider):
+    name = "FormInputGetter"
+    allowed_domains = ["http://www.dmoz.org/"]
+    start_urls = [
+        "http://www.dmoz.org"
+    ]
+
+    def parse(self, response):
+        hxs = HtmlXPathSelector(response)
+	forms = hxs.select('//form')
+
+
