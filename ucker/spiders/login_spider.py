@@ -10,6 +10,18 @@ from scrapy.http import FormRequest, Request
 
 from phishing_uck import getRandomNumberString
 
+def getSizeAppropriateDict(response):
+	hxs = HtmlXPathSelector(response)
+	sizedInputs = hxs.select("//input[@size]")
+	postDict = {}
+	for sizedInput in sizedInputs:
+		inputName = sizedInput.select("./@name")[0].extract()
+		print inputName
+		inputSize = sizedInput.select("./@size")[0].extract()
+		print inputSize
+		postDict[inputName] = getRandomNumberString(int(inputSize))
+	return postDict
+
 class LoginSpider(BaseSpider):
     name = "LoginSpider"
     allowed_domains = ["dmoz.org"]
@@ -42,17 +54,22 @@ class AbsaSpider(BaseSpider):
 	'https://ib.absa.co.za/ib/Authenticate.do'
     ]
     def parse(self, response):
+	postDict = getSizeAppropriateDict(response)
+	
+	#Notice: JAVASCRIPT adds YIPPEE for server to verify running of JS.	
+	postDict['JAVASCRIPT'] = 'YIPPEE';
+	# Remove user, as Default is appropriate
+	del(postDict['user'])
+	print postDict
+	print "DEBUG NOTE: not executing"
+	return
 	return [FormRequest.from_response(response,
-                 #Notice: JAVASCRIPT adds YIPPEE for server to verify running of JS.
-                 formdata={'AccessAccount': '123456789', 'PIN': '12345', 'JAVASCRIPT': 'YIPPEE'},
+                 formdata=postDict,
                  callback=self.after_login)]
 
     def after_login(self, response):
 	f = open('response.html', 'w')
 	f.write(response.body)
 	f.close()
-        print response
-
-
         # continue scraping with authenticated session...
 

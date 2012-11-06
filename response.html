@@ -1,0 +1,417 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html>
+<head>
+	<title>Internet Banking: Logon</title><link rel="stylesheet" href="https://ib.absa.co.za/ib/style/ib.css"><script language="JavaScript" src="javascripts/global/global.js"></script><script language="JavaScript">_gServerAddress = "https://ib.absa.co.za";function pageOnload(){window.defaultStatus = 'Internet Banking';}function printPage(){try { self.focus(); window.print(); } catch (e) { }}function openHelp(){openWindow('https://ib.absa.co.za/ib/cache.do?document=http://wasport0.absa.co.za:9087/ibcs/ibRedirect.jsplang=ento=Authenticate','HELP','H');return true;}</script><div id="divMouseOver" style="position: absolute; background-color: #F7F8F3; color: #000000; border: 1px solid #E62131; padding: 2px; font-size: 11px; font-family: Arial, Helvetica, sans-serif; " class="hidden"></div><div id="divLogoff"></div>
+
+	<script language="JavaScript">
+	    if (typeof(_ISNUMERIC_JS) == "undefined") {
+    var _ISNUMERIC_JS = true;
+} else {
+    alert("isNumeric.js:This script file is included more than once.");
+}
+/** Test for a numeric value.
+* @param num (String, Mandatory} String value to be tested for numeric
+* @param arg (String, Optional) Integer value with appropiate options viz. NO_DECIMAL + NON_NEGATIVE
+* Default arg is NO_DECIMAL + NON_NEGATIVE i.e. positive integer numbers only. To allow for decimal and/or
+* negative numbers adjust arg accordingly viz. DECIMAL + NEGATIVE_ALLOWED, DECIMAL, DECIMAL + NON_NEGATIVE etc.
+* @returns true if a valid numeric, false otherwise
+* @see DECIMAL Constant to identify decimals are allowed
+* @see NO_DECIMAL Constant to identify no decimals allowed
+* @see NOT_NEGATIVE Constant to use when only positive numbers are allowed
+* @see NEGATIVE_ALLOWED Constant to use when negative number are allowed
+*/
+var NO_DECIMAL=0, DECIMAL=1, NOT_NEGATIVE=2, NEGATIVE_ALLOWED=4;
+function isNumeric(num, arg) {
+	if (arguments.length < 1)  { return false; }
+	if (num.indexOf(" ") >= 0 || num.length < 1) { return false; }
+	var isDecimal  = (arguments.length < 2) ? false : (arg & DECIMAL) ? true : false;
+	var isNegative = (arguments.length < 2) ? false : (arg & NEGATIVE_ALLOWED) ? true : false;
+
+    var valid = "0123456789-.,", decCount=0;
+    for (var i=0; i < num.length; i++) {
+        var ch = num.charAt(i);
+        if (valid.indexOf(ch) < 0) { return false; } // Valid chars
+        if (ch=='-' && !isNegative) { return false; } // Negative numbers
+        if (ch=='.' || ch==',') { decCount++; } // Decimal counter
+        if ((decCount > 0 && !isDecimal) || decCount > 1) { return false; } // Invalid decimal
+    }
+
+	return !isNaN(parseFloat(num));
+} // End isNumeric
+
+	    /*
+ * Function to set hilite of the last element to recieve focus.
+ * @param ele {String|Object, Mandatory} Element to set the focus on, either the element object or element name.
+ * @param allTypes {boolean, Optional} True - Hilite all types of fields; False - Hilite only PASSWORD type fields
+ * @returns Boolean, false if error, true otherwise
+ */
+var lastFocus = null;
+function setFocus(ele, allTypes) {
+	if (arguments.length < 1) { alert("Invalid number of arguments"); return false; }
+	if (arguments.length < 2) { allTypes = false;}
+
+	if (typeof(ele) == "string") {
+	    if (document.all) {
+	        ele = document.all[ele];
+	    } else if (document.getElementById) {
+	        ele = document.getElementById(ele);
+	    } else {
+	        ele = null;
+	    }
+	} else if (typeof(ele) != "object") {
+		alert("Invalid element specified"); 
+		return false;
+	}
+
+	var hiliteTypes = "password"; // element types to be hilited viz. text,password etc.
+	
+	if (ele == null) { return false; }
+	if (lastFocus == null) { lastFocus = ele; }
+	if (lastFocus.name != ele.name) { 
+		if (allTypes || hiliteTypes.indexOf(lastFocus.type) >= 0) {
+			lastFocus.className = ""; 
+		}
+	}
+
+	lastFocus = ele;
+	if (allTypes || hiliteTypes.indexOf(lastFocus.type) >= 0) {
+		lastFocus.className = "activeField";
+	}
+	lastFocus.focus();
+
+	return true;	
+} // End setFocus
+
+
+
+function setFocus2(form, allTypes) {
+	if (arguments.length < 1) { alert("Invalid number of arguments"); return false; }
+	if (arguments.length < 2) { allTypes = false;}
+
+	var hiliteTypes = "password"; // element types to be hilited viz. text,password etc.
+	
+	if (lastFocus == null) {lastFocus = eval(form); }
+	if (lastFocus != eval(form)) { 
+		if (allTypes || hiliteTypes.indexOf(lastFocus.type) >= 0) {
+			lastFocus.className = ""; 
+		}
+	}
+
+	lastFocus = eval(form);
+	if (allTypes || hiliteTypes.indexOf(lastFocus.type) >= 0) {
+		lastFocus.className = "activeField";
+	}
+	lastFocus.focus();
+
+	return true;	
+} // End setFocus
+
+
+
+	    function ValidateForm(theForm) {
+	        if (theForm.AccessAccount.value == "") {
+	            alert("Please enter a valid access account number in the 'Access Account Number' field");
+	            theForm.AccessAccount.focus();
+	            return false;
+	        }
+	
+	        if (!isNumeric(theForm.AccessAccount.value)) {
+	            alert("Please enter only numeric characters in the 'Access Account Number' field");
+	            theForm.AccessAccount.focus();
+	            return false;
+	        }
+	
+	        if (theForm.PIN.value == "") {
+	            alert("Please enter a PIN in the 'PIN' field");
+	            theForm.PIN.focus();
+	            return false;
+	        }
+	
+	        if (!isNumeric(theForm.PIN.value)) {
+	            alert("Please enter only numeric characters in the 'PIN' field");
+	            theForm.PIN.focus();
+	            return false;
+	        }
+	
+	        if (theForm.PIN.value.length < 4) {
+	            alert("Please enter a valid PIN in the 'PIN' field");
+	            theForm.PIN.focus();
+	            return false;
+	        }
+	
+	        if (theForm.user.value == "") {
+	            alert("Please enter a valid user (operator) number, in the 'User Number' field");
+	            theForm.user.focus();
+	            return false;
+	        }
+	
+	        if (!isNumeric(theForm.user.value)) {
+	            alert("Please enter only numeric characters in the 'User Number' field");
+	            theForm.user.focus();
+	            return false;
+	        }
+
+	    	theForm.JAVASCRIPT.value = "YIPPEE";
+	        return true;
+	    }
+	
+	    
+	    function ValidateLengths() {
+	        if (lastFocus.name == "AccessAccount") {
+	            if (lastFocus.value.length > 16) {
+	                alert("Please enter a valid access account number in the 'Access Account Number' field");
+					lastFocus.value = lastFocus.value.substring(0,lastFocus.value.length-1);
+					lastFocus.focus();
+	                return false;
+	            }
+	        } else if (lastFocus.name == "PIN") {
+	            if (lastFocus.value.length > 5) {
+	                alert("Please enter a valid PIN in the 'PIN' field");
+					lastFocus.value = lastFocus.value.substring(0,lastFocus.value.length-1);
+					lastFocus.focus();
+	                return false;
+	            }
+	        } else if (lastFocus.name == "user") {
+	            if (lastFocus.value.length > 4) {
+	                alert("Please enter a valid user (operator) number, in the 'User Number' field");
+					lastFocus.value = lastFocus.value.substring(0,lastFocus.value.length-1);
+					lastFocus.focus();
+	                return false;
+	            }
+	        }
+	        return (true);
+	    }
+	
+		var lastFocus = null;
+
+		function KeyPadClick(num) {
+			if (lastFocus) {
+				if (num == KEYPAD_DELETE) {
+					lastFocus.value = lastFocus.value.substring(0,lastFocus.value.length-1);
+				} else if (num == KEYPAD_CLEAR) {
+					lastFocus.value = "";
+				} else {
+					lastFocus.value = lastFocus.value + num;
+				}
+				lastFocus.focus();
+			}				
+			ValidateLengths();
+		}
+	</script>
+
+</head>
+
+
+
+	
+
+<body onload="pageOnload();lastFocus = document.theForm.AccessAccount;document.theForm.AccessAccount.focus();" style="padding-left: 5px;">
+
+	<table cellpadding="0" cellspacing="0" width="100%">
+		<tr>
+			<td>
+				<table cellpadding="0" cellspacing="0" class="panel" width="100%">
+					<tr>
+						<td class="panelHeader"><table cellspacing="0" cellpadding="0"><tr><td class="pageheadingNoPadding" align="left" nowrap>Logon</td></tr></table></td>
+					</tr>
+					<tr>
+						<td>
+							<table cellspacing="0" cellpadding="0" class="messageBlock" style="padding: 5px;"><tr><td><table cellspacing="0" cellpadding="0"><tr><td colspan="2" style="color: #000000; font-weight: bold;">The following error(s) were found</td></tr><tr><td width="10">&nbsp;</td><td class="errors">- Authentication Failed. Please enter a valid access account number, user number and PIN</td></tr></table></td></tr></table><table cellspacing="0" cellpadding="0"><tr><td>&nbsp;</td></tr></table>
+							
+							
+								<table cellpadding="0" cellspacing="0">
+							        <tr> 
+										<td>
+											<form name="theForm" method="POST" action="https://vs1.absa.co.za/ib/Authenticate.do;jsessionid=0000lFXENFAWDsD5oJ8RaUXwewX:11kti5kls" onsubmit="if (typeof(addNonce)=='function') { addNonce(); } return CheckAlreadySubmitted()" autocomplete="OFF"><input type="hidden" name="_Uid_" value="1"><input type="hidden" name="_language_" value="en"><input type="hidden" name="uniqueRequestKey" value="">
+												<input type="hidden" name="LOGON" value="1">
+												<input type="hidden" name="JAVASCRIPT" value="">
+												<table cellspacing="0" cellpadding="0">
+													<tr> 
+														<td><div class="tooltip" onclick="openHelp();" onmouseover="return showToolTip('An access account number is the bank account number you chose when you registered for the Internet Banking service and it could be your current-, savings- or credit account number', true);" onmouseout="return showToolTip('', false);" style="position: inline;">Enter your access account number</div></td>
+														<td rowspan="6">
+													        <table cellspacing="0" cellpadding="0">
+													            <tr>
+																		
+<script language="JavaScript">
+var KEYPAD_DELETE = -1;	// Key Pad Delete value
+var KEYPAD_CLEAR  = -2;	// Key Pad Clear value
+
+/**
+ * Method to catch the number selected on the key pad an initiate the main KeyPad function to action the value.
+ * Implementing pages must define a function called KeyPadClick(num) to manipulate the value passed from the
+ * keypad input elements.
+ * @param arg {String} Numeric value of the key selected.
+ * @return true/false
+ */
+function KeyPad_Click(arg) {
+	if (typeof(KeyPadClick) == "undefined") {
+		alert("Required function \"KeyPadClick\" is not defined.\nfunction KeyPadClick(num) { ... }");
+		return false;
+	} else {
+		KeyPadClick(parseInt(arg));
+		return true;
+	}
+} // End KeyPad_Click
+</script>
+
+
+<td width="8">&nbsp;</td>
+<td align=left valign=top>
+    <table border=1>
+        <tr>
+            <td>
+                <table class="KeyPad">
+                    <tr>
+                        <td colspan=3><font color="white"><b>Keypad</b></font></td>
+                    </tr>
+                    <tr>
+                        <td align="center"><input name="_kp1" type="button" value=" 1 " ondblclick="KeyPad_Click('1')" onclick="KeyPad_Click('1')"></td>
+                        <td align="center"><input name="_kp2" type="button" value=" 2 " ondblclick="KeyPad_Click('2')" onclick="KeyPad_Click('2')"></td>
+                        <td align="center"><input name="_kp3" type="button" value=" 3 " ondblclick="KeyPad_Click('3')" onclick="KeyPad_Click('3')"></td>
+                    </tr>
+                    <tr>
+                        <td align="center"><input name="_kp4" type="button" value=" 4 " ondblclick="KeyPad_Click('4')" onclick="KeyPad_Click('4')"></td>
+                        <td align="center"><input name="_kp5" type="button" value=" 5 " ondblclick="KeyPad_Click('5')" onclick="KeyPad_Click('5')"></td>
+                        <td align="center"><input name="_kp6" type="button" value=" 6 " ondblclick="KeyPad_Click('6')" onclick="KeyPad_Click('6')"></td>
+                    </tr>
+                    <tr>
+                        <td align="center"><input name="_kp7" type="button" value=" 7 " ondblclick="KeyPad_Click('7')" onclick="KeyPad_Click('7')"></td>
+                        <td align="center"><input name="_kp8" type="button" value=" 8 " ondblclick="KeyPad_Click('8')" onclick="KeyPad_Click('8')"></td>
+                        <td align="center"><input name="_kp9" type="button" value=" 9 " ondblclick="KeyPad_Click('9')" onclick="KeyPad_Click('9')"></td>
+                    </tr>
+                    <tr>
+                        <td align="center"><input name="_kpD" type="button" value=" &lt; " ondblclick="KeyPad_Click(KEYPAD_DELETE)" onclick="KeyPad_Click(KEYPAD_DELETE)"></td>
+                        <td align="center"><input name="_kp0" type="button" value=" 0 " ondblclick="KeyPad_Click('0')" onclick="KeyPad_Click('0')"></td>
+                        <td align="center"><input name="_kpC" type="button" value=" C " onclick="KeyPad_Click(KEYPAD_CLEAR)"></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</td>
+<script language="JavaScript">
+// Initialise the keypad double click function. This is done for NN since the onclick is sufficient to emulate the
+// dblclick event.
+function _kpInit() {
+	if (!document.all) {
+		for (var i=0; i < document.forms[0].elements.length; i++) {
+			var ele = document.forms[0].elements[i];
+			if (ele.type == "button") {
+				if (ele.name.slice(0,3) == "_kp") {
+					ele.ondblclick = new Function("return false;");
+				}
+			}
+		}
+	}
+} // end _kpInit
+_kpInit(); // Init keypad events
+
+</script>
+
+													            </tr>
+													        </table>
+														</td>
+													</tr>
+													<tr>
+														<td>&nbsp;&nbsp;&nbsp;<input type="text" name="AccessAccount" value="" size="16" maxlength="16" onfocus="setFocus(this, true);"></td>
+													</tr>
+													<tr> 
+														<td class="topPadding"><div class="tooltip" onclick="openHelp();" onmouseover="return showToolTip('PIN is a Personal Identification Number.  You have to choose this number yourself when you register for Absa Internet Banking. This is a numeric number and is 4 or 5 digits long.  You have to key in this PIN every time you log on to Absa Internet Banking', true);" onmouseout="return showToolTip('', false);" style="position: inline;">Enter your PIN</div></td>
+													</tr>
+													<tr>
+														<td>&nbsp;&nbsp;&nbsp;<input type="password" name="PIN" value="" size="5" maxlength="5" onfocus="setFocus(this, true);"></td>
+													</tr>
+													<tr> 
+														<td class="topPadding"><div class="tooltip" onclick="openHelp();" onmouseover="return showToolTip('Absa Internet Banking could have more than one user per service and each user has their own Internet Banking PIN. The user number you are assigned upon registration of the service should be used when you log on to the service', true);" onmouseout="return showToolTip('', false);" style="position: inline;">Enter your user number</div></td>
+													</tr>
+													<tr>
+														<td>&nbsp;&nbsp;&nbsp;<input type="text" name="user" value="1" size="5" maxlength="4" onfocus="setFocus(this, true);"></td>
+													</tr>
+													<tr> 
+														<td class="topPadding" colspan="2">It is your responsibility to ensure the secrecy of your PIN number.<br>To review our security tips on how to secure your password and<br>PIN number <a href="#" onclick="postHref('#');openWindow('http://www.absa.co.za/absacoza/content.jsp?VGN_C_ID=ef49b5fe3ae42010VgnVCM1000003511060aRCRD&VGN_CI_ID=8c8df1d4972d1010VgnVCM100000ce17040aRCRD&popupWidth=790', 'ABSA');;return false;">click here</a>.</td>
+													</tr>
+													<tr> 
+														<td colspan="2">
+															<input type="reset" name="reset" class="buttons" value="Reset" onclick="if (typeof(addNonce)=='function') { addNonce(); } AccessAccount.focus();">
+															<INPUT TYPE="hidden" NAME="processPIN_params" VALUE="controller%3Dcom.sirius.apps.ib.view.web.user.AuthenticateCntrl%26state%3DprocessPIN"><INPUT TYPE="hidden" NAME="processPIN_encoding" VALUE="u">
+<INPUT TYPE="submit" NAME="button_processPIN" VALUE="Next &gt;" onClick="return ValidateForm(document.theForm)" class="buttons" tabindex="null" >
+<INPUT TYPE="hidden" NAME="cmd" VALUE="button" >
+
+														</td>
+													</tr>
+												</table>
+											</form>
+<script language="JavaScript" type="text/javascript">
+var Submitted;
+function CheckAlreadySubmitted()
+{
+        document.body.style.cursor = "wait";
+	if (Submitted == "1")
+		{
+			alert("This transaction has already been submitted");
+			return (false);
+		}
+	 else 
+		{
+			Submitted = "1";
+		}
+	return(true);
+}
+</script>
+
+										</td>
+									</tr>
+								</table>
+							
+							
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td class="topPadding">
+				<table cellpadding="0" cellspacing="0" class="panel" width="100%">
+					<tr>
+						<td class="panelHeader"><b>Important Internet Banking links<b></td>
+					</tr>
+					<tr>
+						<td>
+							<table cellpadding="0" cellspacing="0" width="100%">
+								<tr>
+									
+										<td width="33%"><a href="#" onclick="openWindow('/ib/Register.do;jsessionid=0000lFXENFAWDsD5oJ8RaUXwewX:11kti5kls?_Uid_=1&_language_=en', 'LINK');"><img src="/ib/images/menu/side_nav_arrrow.gif" border="0"> How to register</a></td>
+									
+									<!--td><a href="#" onclick="openWindow('http://www.absa.co.za/absacoza/generated/IB/eng/main.html', 'DEMO', 'E');"><img src="/ib/images/menu/side_nav_arrrow.gif" border="0"> Demo</a></td-->
+									<td width="33%"><a href="#" onclick="openWindow('https://ib.absa.co.za/ib/cache.do?document=http://wasport0.absa.co.za:9087/ibcs/ibRedirect.jsplang=ento=FAQ', 'LINK');"><img src="/ib/images/menu/side_nav_arrrow.gif" border="0"> FAQs</a></td>
+									<td><a href="#" onclick="openWindow('https://ib.absa.co.za/ib/cache.do?document=http://wasport0.absa.co.za:9087/ibcs/ibRedirect.jsplang=ento=TAX', 'LINK');"><img src="/ib/images/menu/side_nav_arrrow.gif" border="0"> Tax returns</a></td>
+								</tr>										
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td><a href="#" onclick="postHref('/ib/ChangeLanguage.do?_newLanguage_=af&_Uid_=1&_language_=en');return false;"><img src="/ib/images/menu/side_nav_arrrow.gif" border="0"> <b>Verander na Afrikaans</b></a>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+<div id="hrefPostDiv"  style="position: absolute;" class="hidden"><form name="postHrefForm" action="" target="content" method="post">TEMP</form></div></body>
+</html>
